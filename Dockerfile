@@ -1,0 +1,34 @@
+# Stage 1: Build the frontend
+FROM node:16-alpine as frontend-builder
+
+WORKDIR /app/frontend
+COPY ./frontend/package*.json ./
+RUN npm install
+COPY ./frontend ./
+RUN npm run build
+
+# Stage 2: Backend setup
+FROM python:3.9-slim as backend-builder
+
+WORKDIR /app/backend
+COPY ./backend/requirements.txt ./
+RUN pip install -r requirements.txt
+COPY ./backend ./
+
+# Stage 3: Final image
+FROM nginx:alpine
+
+# Copy built frontend files
+COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+
+# Copy backend files
+COPY --from=backend-builder /app/backend /app/backend
+
+# Copy nginx configuration (optional)
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
+# Expose ports
+EXPOSE 80 8000
+
+# Start both frontend and backend
+CMD ["sh", "-c", "nginx && uvicorn /app/backend/main:app --host 0.0.0.0 --port 8000"]
