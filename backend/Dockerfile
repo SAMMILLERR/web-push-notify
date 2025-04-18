@@ -5,6 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the backend code
+COPY /etc/secrets/serviceAccountKey.json /usr/share/nginx/html/serviceAccountKey.json
 COPY . .
 
 # Install dependencies

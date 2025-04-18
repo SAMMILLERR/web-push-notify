@@ -5,6 +5,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy your static files (index.html, main.js, firebase-messaging-sw.js, etc.)
+COPY /etc/secrets/config.js /usr/share/nginx/html/config.js
 COPY . /usr/share/nginx/html
 
 # Expose HTTP port
