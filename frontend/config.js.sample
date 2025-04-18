@@ -1,0 +1,14 @@
+// frontend/config.js
+window.env = {
+    firebaseConfig: {
+      apiKey: "random-api-key",
+      authDomain: "...firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-storage-bucket.firebasestorage.app",
+      messagingSenderId: "0000000000",
+      appId: "a:b:0d0:a",
+      measurementId: "",
+      vapidKey: ""
+    },
+    backendUrl: "http://localhost:8000"
+  };

@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pydantic
+pyfcm
+aio_pika
+firebase-admin
