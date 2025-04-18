@@ -25,7 +25,7 @@ COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
 COPY --from=backend-builder /app/backend /app/backend
 
 # Copy nginx configuration (optional)
-COPY ./nginx.conf /etc/nginx/nginx.conf
+#COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Expose ports
 EXPOSE 80 8000
