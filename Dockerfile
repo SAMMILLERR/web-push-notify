@@ -13,12 +13,10 @@ RUN pip install -r requirements.txt
 COPY ./backend ./
 
 # Stage 3: Final image
-FROM nginx:alpine
+FROM python:3.9-slim
 
-RUN apk add --no-cache python3 py3-pip
-
-# Install Uvicorn + FastAPI
-RUN pip3 install --no-cache-dir uvicorn fastapi firebase-admin
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx && apt-get clean
 
 # Copy built frontend files
 COPY --from=frontend-builder /app/frontend /usr/share/nginx/html
