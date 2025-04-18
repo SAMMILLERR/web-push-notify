@@ -1,64 +1,80 @@
 // frontend/main.js
 
-// Initialize Firebase
-firebase.initializeApp(window.env.firebaseConfig);
-const messaging = firebase.messaging();
-
-// Register the service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-    .register('firebase-messaging-sw.js')
-    .then(registration => {
-      console.log("Service Worker registered:", registration.scope);
-      window.swRegistration = registration;
-    })
-    .catch(err => {
-      console.error("Service Worker registration failed:", err);
-    });
-} else {
-  console.warn("Service Workers not supported.");
-}
-
-// Subscribe button listener
-document.getElementById("subscribeBtn").addEventListener("click", async () => {
-  const statusElem = document.getElementById("status");
+(async () => {
   try {
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      statusElem.textContent = "Status: Notification permission denied.";
-      return;
+    // Fetch the configuration file
+    const response = await fetch('/etc/secrets/config.js');
+    if (!response.ok) {
+      throw new Error(`Failed to load config.js: ${response.statusText}`);
     }
 
-    const token = await messaging.getToken({
-      vapidKey: window.env.firebaseConfig.vapidKey,
-      serviceWorkerRegistration: window.swRegistration
-    });
+    // Parse the configuration
+    const config = await response.json();
+    window.env = config;
 
-    if (!token) {
-      statusElem.textContent = "Status: Failed to receive token.";
-      return;
-    }
+    // Initialize Firebase
+    firebase.initializeApp(window.env.firebaseConfig);
+    const messaging = firebase.messaging();
 
-    //console.log("FCM Token:", token);
-    // Send token to backend
-    const res = await fetch(
-      `${window.env.backendUrl}/devices/register`, 
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fcm_token: token })
-      }
-    );
-
-    const data = await res.json();
-    if (res.ok) {
-      statusElem.textContent = `Status: Subscribed (${data.total_tokens} tokens)`;
+    // Register the service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('firebase-messaging-sw.js')
+        .then(registration => {
+          console.log("Service Worker registered:", registration.scope);
+          window.swRegistration = registration;
+        })
+        .catch(err => {
+          console.error("Service Worker registration failed:", err);
+        });
     } else {
-      statusElem.textContent = `Status: Registration error: ${data.detail || "Unknown error"}`;
+      console.warn("Service Workers not supported.");
     }
+
+    // Add event listener for the subscribe button
+    document.getElementById("subscribeBtn").addEventListener("click", async () => {
+      const statusElem = document.getElementById("status");
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          statusElem.textContent = "Status: Notification permission denied.";
+          return;
+        }
+
+        const token = await messaging.getToken({
+          vapidKey: window.env.firebaseConfig.vapidKey,
+          serviceWorkerRegistration: window.swRegistration
+        });
+
+        if (!token) {
+          statusElem.textContent = "Status: Failed to receive token.";
+          return;
+        }
+
+        // Send token to backend
+        const res = await fetch(
+          `${window.env.backendUrl}/devices/register`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fcm_token: token })
+          }
+        );
+
+        const data = await res.json();
+        if (res.ok) {
+          statusElem.textContent = `Status: Subscribed (${data.total_tokens} tokens)`;
+        } else {
+          statusElem.textContent = `Status: Registration error: ${data.detail || "Unknown error"}`;
+        }
+
+      } catch (err) {
+        console.error("Subscription error:", err);
+        statusElem.textContent = "Status: Error during subscription.";
+      }
+    });
 
   } catch (err) {
-    console.error("Subscription error:", err);
-    statusElem.textContent = "Status: Error during subscription.";
+    console.error("Error loading configuration:", err);
   }
-});
+})();
