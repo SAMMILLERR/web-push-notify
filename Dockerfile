@@ -15,6 +15,11 @@ COPY ./backend ./
 # Stage 3: Final image
 FROM nginx:alpine
 
+RUN apk add --no-cache python3 py3-pip
+
+# Install Uvicorn + FastAPI
+RUN pip3 install --no-cache-dir uvicorn fastapi firebase-admin
+
 # Copy built frontend files
 COPY --from=frontend-builder /app/frontend /usr/share/nginx/html
 
