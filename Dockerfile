@@ -23,6 +23,8 @@ COPY --from=frontend-builder /app/frontend /usr/share/nginx/html
 
 # Copy backend files
 COPY --from=backend-builder /app/backend /app/backend
+COPY --from=backend-builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=backend-builder /usr/local/bin /usr/local/bin
 
 # Copy nginx configuration (optional)
 #COPY ./nginx.conf /etc/nginx/nginx.conf
