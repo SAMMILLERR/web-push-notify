@@ -31,4 +31,4 @@ COPY --from=backend-builder /app/backend /app/backend
 EXPOSE 80 8000
 
 # Start both frontend and backend
-CMD ["sh", "-c", "nginx && uvicorn /app/backend/main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "nginx && python /app/backend/main.py"]
