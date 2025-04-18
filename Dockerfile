@@ -1,11 +1,8 @@
 # Stage 1: Build the frontend
-FROM node:16-alpine as frontend-builder
+FROM nginx:alpine as frontend-builder
 
 WORKDIR /app/frontend
-COPY ./frontend/package*.json ./
-RUN npm install
 COPY ./frontend ./
-RUN npm run build
 
 # Stage 2: Backend setup
 FROM python:3.9-slim as backend-builder
