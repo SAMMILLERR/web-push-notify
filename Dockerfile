@@ -16,7 +16,7 @@ COPY ./backend ./
 FROM nginx:alpine
 
 # Copy built frontend files
-COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app/frontend /usr/share/nginx/html
 
 # Copy backend files
 COPY --from=backend-builder /app/backend /app/backend
